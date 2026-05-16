@@ -61,11 +61,11 @@ stages:
 
     steps:
 
-    - script: docker compose -f docker-compose.dev.yml down
+    - script: docker compose -f DevOpsApi\docker-compose.dev.yml down
       workingDirectory: $(Build.SourcesDirectory)
       displayName: Stop DEV
 
-    - script: docker compose -f docker-compose.dev.yml up -d --build
+    - script: docker compose -f DevOpsApi\docker-compose.dev.yml up -d --build
       workingDirectory: $(Build.SourcesDirectory)
       displayName: Deploy DEV
 
@@ -80,11 +80,11 @@ stages:
 
     steps:
 
-    - script: docker compose -f docker-compose.prod.yml down
+    - script: docker compose -f DevOpsApi\docker-compose.prod.yml down
       workingDirectory: $(Build.SourcesDirectory)
       displayName: Stop PROD
 
-    - script: docker compose -f docker-compose.prod.yml up -d --build
+    - script: docker compose -fDevOpsApi docker-compose.prod.yml up -d --build
       workingDirectory: $(Build.SourcesDirectory)
       displayName: Deploy PROD
 
