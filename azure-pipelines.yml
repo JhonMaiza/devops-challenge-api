@@ -84,7 +84,7 @@ stages:
       workingDirectory: $(Build.SourcesDirectory)
       displayName: Stop PROD
 
-    - script: docker compose -fDevOpsApi docker-compose.prod.yml up -d --build
+    - script: docker compose -f  DevOpsApi\docker-compose.prod.yml up -d --build
       workingDirectory: $(Build.SourcesDirectory)
       displayName: Deploy PROD
 
