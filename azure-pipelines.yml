@@ -73,7 +73,7 @@ stages:
 - stage: DeployProd
   displayName: Deploy Production
   dependsOn: DeployDev
-  condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
+  condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
 
   jobs:
   - job: DeployProdJob
