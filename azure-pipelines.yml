@@ -1,5 +1,11 @@
 trigger:
-- master
+  branches:
+    include:
+      - master
+
+  tags:
+    include:
+      - v*
 
 pool:
   name: Default
@@ -9,18 +15,18 @@ variables:
 
 stages:
 
-# BUILD + TEST + ANALYSIS
-- stage: BuildAndTest
-  displayName: Build Test and Analysis
+# =========================
+# BUILD
+# =========================
+- stage: Build
+  displayName: Build Stage
 
   jobs:
   - job: BuildJob
-    displayName: Build Job
 
     steps:
 
     - task: UseDotNet@2
-      displayName: Install .NET SDK
       inputs:
         packageType: 'sdk'
         version: '8.x'
@@ -31,32 +37,64 @@ stages:
     - script: dotnet build --configuration $(buildConfiguration)
       displayName: Build Application
 
-    - script: dotnet test --collect:"XPlat Code Coverage"
-      displayName: Run Unit Tests with Coverage
-
-    - script: dotnet format --verify-no-changes
-      displayName: Static Code Analysis
-
-
-# DEPLOY
-- stage: Deploy
-  displayName: Deploy Application
-  dependsOn: BuildAndTest
-  condition: succeeded()
+# =========================
+# TEST
+# =========================
+- stage: Test
+  displayName: Test Stage
+  dependsOn: Build
 
   jobs:
-  - job: DeployJob
-    displayName: Deploy Containers
+  - job: TestJob
 
     steps:
 
-    - script: docker compose -f DevOpsApi/docker-compose.yml down
-      displayName: Stop Existing Containers
-      workingDirectory: $(Build.SourcesDirectory)
+    - script: dotnet test --collect:"XPlat Code Coverage"
+      displayName: Run Tests
 
-    - script: docker compose -f DevOpsApi/docker-compose.yml up -d --build
-      displayName: Deploy with Docker Compose
+    - script: dotnet format --verify-no-changes
+      displayName: Static Analysis
+
+# =========================
+# DEPLOY DEV
+# =========================
+- stage: DeployDev
+  displayName: Deploy Development
+  dependsOn: Test
+
+  jobs:
+  - job: DeployDevJob
+
+    steps:
+
+    - script: docker compose -f docker-compose.dev.yml down
       workingDirectory: $(Build.SourcesDirectory)
-      
+      displayName: Stop DEV
+
+    - script: docker compose -f docker-compose.dev.yml up -d --build
+      workingDirectory: $(Build.SourcesDirectory)
+      displayName: Deploy DEV
+
+# =========================
+# DEPLOY PROD
+# =========================
+- stage: DeployProd
+  displayName: Deploy Production
+  dependsOn: DeployDev
+  condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
+
+  jobs:
+  - job: DeployProdJob
+
+    steps:
+
+    - script: docker compose -f docker-compose.prod.yml down
+      workingDirectory: $(Build.SourcesDirectory)
+      displayName: Stop PROD
+
+    - script: docker compose -f docker-compose.prod.yml up -d --build
+      workingDirectory: $(Build.SourcesDirectory)
+      displayName: Deploy PROD
+
     - script: docker ps
-      displayName: Validate Running Containers
+      displayName: Validate Containers
