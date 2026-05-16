@@ -31,7 +31,7 @@ public class JwtServiceTests
         var jwt = handler.ReadJwtToken(token);
 
         // Assert
-        Assert.NotNull(jwt.ValidTo);
+        Assert.True(jwt.ValidTo > DateTime.UtcNow);
     }
 
     [Fact]
