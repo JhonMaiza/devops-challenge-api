@@ -1,0 +1,30 @@
+trigger:
+- master
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  buildConfiguration: 'Release'
+
+steps:
+
+- task: UseDotNet@2
+  inputs:
+    packageType: 'sdk'
+    version: '8.x'
+
+- script: dotnet restore
+  displayName: Restore
+
+- script: dotnet build --configuration $(buildConfiguration)
+  displayName: Build
+
+- script: dotnet test --collect:"XPlat Code Coverage"
+  displayName: Run Tests with Coverage
+
+- script: dotnet format --verify-no-changes
+  displayName: Static Code Analysis
+
+- script: docker build -t devops-api ./DevOpsApi
+  displayName: Docker Build
