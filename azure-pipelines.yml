@@ -2,29 +2,61 @@ trigger:
 - master
 
 pool:
-  vmImage: ubuntu-latest
+  name: Default
 
 variables:
   buildConfiguration: 'Release'
 
-steps:
+stages:
 
-- task: UseDotNet@2
-  inputs:
-    packageType: 'sdk'
-    version: '8.x'
+# BUILD + TEST + ANALYSIS
+- stage: BuildAndTest
+  displayName: Build Test and Analysis
 
-- script: dotnet restore
-  displayName: Restore
+  jobs:
+  - job: BuildJob
+    displayName: Build Job
 
-- script: dotnet build --configuration $(buildConfiguration)
-  displayName: Build
+    steps:
 
-- script: dotnet test --collect:"XPlat Code Coverage"
-  displayName: Run Tests with Coverage
+    - task: UseDotNet@2
+      displayName: Install .NET SDK
+      inputs:
+        packageType: 'sdk'
+        version: '8.x'
 
-- script: dotnet format --verify-no-changes
-  displayName: Static Code Analysis
+    - script: dotnet restore
+      displayName: Restore Dependencies
 
-- script: docker build -t devops-api ./DevOpsApi
-  displayName: Docker Build
+    - script: dotnet build --configuration $(buildConfiguration)
+      displayName: Build Application
+
+    - script: dotnet test --collect:"XPlat Code Coverage"
+      displayName: Run Unit Tests with Coverage
+
+    - script: dotnet format --verify-no-changes
+      displayName: Static Code Analysis
+
+    - script: docker build -t devops-api ./DevOpsApi
+      displayName: Build Docker Image
+
+# DEPLOY
+- stage: Deploy
+  displayName: Deploy Application
+  dependsOn: BuildAndTest
+  condition: succeeded()
+
+  jobs:
+  - job: DeployJob
+    displayName: Deploy Containers
+
+    steps:
+
+    - script: docker compose down
+      displayName: Stop Existing Containers
+
+    - script: docker compose up -d --build
+      displayName: Deploy with Docker Compose
+
+    - script: docker ps
+      displayName: Validate Running Containers
