@@ -15,9 +15,7 @@ variables:
 
 stages:
 
-# =========================
 # BUILD
-# =========================
 - stage: Build
   displayName: Build Stage
 
@@ -37,9 +35,7 @@ stages:
     - script: dotnet build --configuration $(buildConfiguration)
       displayName: Build Application
 
-# =========================
 # TEST
-# =========================
 - stage: Test
   displayName: Test Stage
   dependsOn: Build
@@ -55,9 +51,7 @@ stages:
     - script: dotnet format --verify-no-changes
       displayName: Static Analysis
 
-# =========================
 # DEPLOY DEV
-# =========================
 - stage: DeployDev
   displayName: Deploy Development
   dependsOn: Test
@@ -75,9 +69,7 @@ stages:
       workingDirectory: $(Build.SourcesDirectory)
       displayName: Deploy DEV
 
-# =========================
 # DEPLOY PROD
-# =========================
 - stage: DeployProd
   displayName: Deploy Production
   dependsOn: DeployDev
