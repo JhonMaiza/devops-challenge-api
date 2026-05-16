@@ -52,11 +52,11 @@ stages:
 
     steps:
 
-    - script: docker compose -f docker-compose.yml down
+    - script: docker compose -f DevOpsApi/docker-compose.yml down
       displayName: Stop Existing Containers
       workingDirectory: $(Build.SourcesDirectory)
 
-    - script: docker compose -f docker-compose.yml up -d --build
+    - script: docker compose -f DevOpsApi/docker-compose.yml up -d --build
       displayName: Deploy with Docker Compose
       workingDirectory: $(Build.SourcesDirectory)
       
