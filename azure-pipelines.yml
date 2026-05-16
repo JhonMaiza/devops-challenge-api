@@ -37,8 +37,6 @@ stages:
     - script: dotnet format --verify-no-changes
       displayName: Static Code Analysis
 
-    - script: docker build -t devops-api ./DevOpsApi
-      displayName: Build Docker Image
 
 # DEPLOY
 - stage: Deploy
