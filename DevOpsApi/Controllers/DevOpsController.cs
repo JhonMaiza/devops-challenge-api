@@ -23,7 +23,6 @@ public class DevOpsController : ControllerBase
         {
             message = $"Hello {request.To} your message will be sent",
             jwt = jwt,
-            host = Environment.MachineName
         };
 
         return Ok(response);
