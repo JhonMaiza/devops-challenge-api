@@ -51,7 +51,7 @@ stages:
     - task: PublishCodeCoverageResults@2
       displayName: Publish Code Coverage
       inputs:
-        summaryFileLocation: '$(Agent.TempDirectory)/**/coverage.cobertura.xml'
+        summaryFileLocation: '$(Build.SourcesDirectory)/**/coverage.cobertura.xml'
 
     - script: dotnet format --verify-no-changes
       displayName: Static Analysis
